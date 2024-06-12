@@ -20,7 +20,7 @@ func main() {
 	// consumer.Start(fetcher, processor)
 }
 
-//7464388264:AAEzgvcHZtKke3kuZW8PGZhNyv-bwhgejYI
+
 
 func mustToken() string {
 	//bot -tg-bot-token 'my token'
