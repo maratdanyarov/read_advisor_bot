@@ -22,9 +22,9 @@ type Meta struct {
 var ErrUnknownEventType = errors.New("unknown event type")
 var ErrUnknownMetaType = errors.New("unknown meta type")
 
-func New(clent *telegram.Client, storage storage.Storage) *Processor {
+func New(client *telegram.Client, storage storage.Storage) *Processor {
 	return &Processor{
-		tg:      clent,
+		tg:      client,
 		storage: storage,
 	}
 }
