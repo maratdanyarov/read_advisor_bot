@@ -16,7 +16,6 @@ const (
 	batchSize         = 100
 )
 
-// 7272726735:AAHP2oCGj5wIrHyVlRzaR0hvI4J85-mtt2E
 func main() {
 	// s := files.New(storagePath)
 	s, err := sqlite.New(sqliteStoragePath)
