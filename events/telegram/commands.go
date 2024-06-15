@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/url"
@@ -18,7 +19,7 @@ const (
 func (p *Processor) doCmd(text string, chatID int, username string) error {
 	text = strings.TrimSpace(text)
 
-	log.Printf("got new command '%s' from '%s'", text, username)
+	log.Printf("got new command '%s' from '%s", text, username)
 
 	if isAddCmd(text) {
 		return p.savePage(chatID, text, username)
@@ -26,10 +27,8 @@ func (p *Processor) doCmd(text string, chatID int, username string) error {
 
 	switch text {
 	case RndCmd:
-
 		return p.sendRandom(chatID, username)
 	case HelpCmd:
-
 		return p.sendHelp(chatID)
 	case StartCmd:
 		return p.sendHello(chatID)
@@ -45,7 +44,8 @@ func (p *Processor) savePage(chatID int, pageURL string, username string) (err e
 		URL:      pageURL,
 		UserName: username,
 	}
-	isExists, err := p.storage.IsExists(page)
+
+	isExists, err := p.storage.IsExists(context.Background(), page)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (p *Processor) savePage(chatID int, pageURL string, username string) (err e
 		return p.tg.SendMessage(chatID, msgAlreadyExists)
 	}
 
-	if err := p.storage.Save(page); err != nil {
+	if err := p.storage.Save(context.Background(), page); err != nil {
 		return err
 	}
 
@@ -67,11 +67,10 @@ func (p *Processor) savePage(chatID int, pageURL string, username string) (err e
 func (p *Processor) sendRandom(chatID int, username string) (err error) {
 	defer func() { err = e.WrapIfErr("can't do command: can't send random", err) }()
 
-	page, err := p.storage.PickRandom(username)
+	page, err := p.storage.PickRandom(context.Background(), username)
 	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
 		return err
 	}
-
 	if errors.Is(err, storage.ErrNoSavedPages) {
 		return p.tg.SendMessage(chatID, msgNoSavedPages)
 	}
@@ -80,7 +79,7 @@ func (p *Processor) sendRandom(chatID int, username string) (err error) {
 		return err
 	}
 
-	return p.storage.Remove(page)
+	return p.storage.Remove(context.Background(), page)
 }
 
 func (p *Processor) sendHelp(chatID int) error {
